@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisionText</title>
+</head>
+<body>
+    <div style="background-color: aqua;">
+        <img src="static/visiontext.png" alt="VisionText" style="position: relative; left: 25%;">
+    <h1 style="text-align: center;">Image to Text Converter / OCR</h1>
+    <h2>Image Upload</h1>
+    <form id="imageUploadForm" enctype="multipart/form-data">
+        <input type="file" id="imageInput" accept="image/*" onchange="previewImage(event)">
+        <button type="button" onclick="uploadImage()">Upload</button>
+    </form>
+    <div id="imagePreview" style="text-align: center;"></div>
+    <div id="output" style="text-align: center; background-color: yellow;"></div>
+</div>
+    <script>
+        function previewImage(event) {
+            const imageInput = event.target;
+            const imagePreview = document.getElementById('imagePreview');
+
+            const file = imageInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function() {
+                const imageUrl = reader.result;
+                imagePreview.innerHTML = `<img src="${imageUrl}" alt="Preview" style="height:50%;width:50%;">`;
+            }
+
+            reader.readAsDataURL(file);
+        }
+
+        function uploadImage() {
+            const formData = new FormData();
+            const imageInput = document.getElementById('imageInput');
+            const file = imageInput.files[0];
+            formData.append('image', file);
+            document.getElementById('output').innerHTML = "<h2>Processing...</h2>";
+
+            fetch('/process', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('output').innerHTML = data;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
